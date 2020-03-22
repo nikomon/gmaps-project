@@ -1,0 +1,18 @@
+{
+	"type": "FeatureCollection",
+	"features": [{
+		"type": "Feature",
+		"properties": {
+			"OBJECTID":1,
+			"NAME":"Finland",
+			"SHAPE_Length": "191701.93925800000",
+			"SHAPE_Area": "1060192192.87000000000"
+		},
+		"geometry": {
+			"type": "Polygon",
+			"coordinates": [
+				[[-25, 20], [-25, 100], [70, 100], [75, 100], [76, 20]]
+			]
+		}
+	}]
+}
