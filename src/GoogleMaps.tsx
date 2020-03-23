@@ -38,7 +38,7 @@ export const MapContainer: React.FC = () => {
     map.data.loadGeoJson('https://raw.githubusercontent.com/nikomon/gmaps-project/master/coords.json');
   }
   useEffect(() => {
-    firestore().collection('users').where("symptomps", "==", false)
+    firestore().collection('users').limit(100)
     .get()
     .then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
