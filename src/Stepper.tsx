@@ -8,6 +8,8 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Input } from './Input';
+import { firestore } from 'firebase';
+import { render } from '@testing-library/react';
 
 export const VerticalLinearStepper: React.FC = () => {
   const useStyles = makeStyles((theme: Theme) =>
@@ -32,21 +34,33 @@ export const VerticalLinearStepper: React.FC = () => {
   const steps = ['Oirearvio', 'Anna sijainti', 'Lähetä'];
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [postalCode, setPostalCode] = useState("");
+  const [age, SetAge] = useState(18);
+  const [symptomps, setSymptoms] = useState<boolean|undefined>();
+
 
   useEffect(() => {
     if(location && !postalCode) {
-      const promise = fetch(`https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAK_klzIah3ua0DLlOx9MKpYwXSzP__d_w&latlng=${location?.lat},${location?.lng}&sensor=true`)
+      fetch(`https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAK_klzIah3ua0DLlOx9MKpYwXSzP__d_w&latlng=${location?.lat},${location?.lng}&sensor=true`)
       .then(response => response.json())
       .then(({ results }) => results.map((result: any) => console.log(result)))
-      setPostalCode("00000");
-      console.log(promise)
     }
   }, [location])
 
   const getStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return `Onko sinulla hengitystieoireita? Paina seuraava jos on.`;
+        return (
+          <>
+          <p>
+            <input id="false" type="radio" onChange={() => setSymptoms(false)} name="respiratory" value="false"/>
+            <label htmlFor="false">Minulla ei ole hengitystieoireita</label>
+          </p>
+          <p>
+            <input id="true" type="radio" onChange={() => setSymptoms(true)} name="respiratory" value="true"/>
+            <label htmlFor="true">Minulla on hengitystieoireita</label>
+          </p>
+          </>
+        );
       case 1:
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(({ coords: { latitude, longitude }}) => setLocation({ lat: latitude, lng: longitude}), () => {}, { enableHighAccuracy: false });
@@ -54,7 +68,7 @@ export const VerticalLinearStepper: React.FC = () => {
           alert("Geolocation is not supported by this browser.");
         }
         return location?.lat ? 
-          `Onko oikea postinumerosi ${postalCode}?` :
+          `Annan hyväksynnän sijaintini käyttämiseen` :
           <>
           { 'Ilmeni virhe sijannin haussa. Anna postinumero manuaalisesti' }
           <br/>
@@ -69,8 +83,19 @@ export const VerticalLinearStepper: React.FC = () => {
 
   const handleNext = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1);
-    if(activeStep === steps.length - 1) {
-      
+    if(activeStep === steps.length - 1 && location) {
+      firestore().collection("users").doc().set({
+        age: age,
+        symptomps,
+        lng: location.lng,
+        lat: location.lat
+      })
+      .then(function() {
+          console.log("Document successfully written!");
+      })
+      .catch(function(error: string) {
+          console.error("Error writing document: ", error);
+      });
     }
   };
 
@@ -106,6 +131,7 @@ export const VerticalLinearStepper: React.FC = () => {
                   <Button
                     variant="contained"
                     color="primary"
+                    disabled={symptomps === undefined}
                     onClick={handleNext}
                     className={classes.button}
                   >
@@ -122,9 +148,6 @@ export const VerticalLinearStepper: React.FC = () => {
       {activeStep === steps.length && (
         <Paper square elevation={0} className={classes.resetContainer}>
           <Typography>Kiitos vastauksesta!</Typography>
-          {/* <Button onClick={handleReset} className={classes.button}>
-            Reset
-          </Button> */}
         </Paper>
       )}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
-import * as firebase from 'firebase';
+import { initializeApp, firestore } from 'firebase';
 import GoogleMapReact from 'google-map-react';
 import { AnyReactComponent } from './App';
 // ...
@@ -15,10 +15,16 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_APP_ID,
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
-firebase.initializeApp(firebaseConfig);
-
+initializeApp(firebaseConfig);
+interface coords {
+    id: string;
+    lat: number;
+    lng: number;
+    age: number;
+    symptomps: boolean;
+}
 export const MapContainer: React.FC = () => {
-  const [postalCodes, setPostalCodes] = useState<string[]>([]);
+  const [postalCodes, setPostalCodes] = useState<coords[]>([]);
   const [map, setMap] = useState();
   const [maps, setMaps] = useState();
   const handleApiLoaded = (map: any, maps: any) => {
@@ -32,24 +38,13 @@ export const MapContainer: React.FC = () => {
     map.data.loadGeoJson('https://raw.githubusercontent.com/nikomon/gmaps-project/master/coords.json');
   }
   useEffect(() => {
-  //   firebase.firestore().collection("users").doc().set({
-  //     age: 1,
-  //     symptomps: false,
-  //     postalcode: '00560'
-  // })
-  // .then(function() {
-  //     console.log("Document successfully written!");
-  // })
-  // .catch(function(error: string) {
-  //     console.error("Error writing document: ", error);
-  // });
-    firebase.firestore().collection('users').where("symptomps", "==", false)
+    firestore().collection('users').where("symptomps", "==", false)
     .get()
     .then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
-            console.log(doc.id, " => ", doc.data());
-            const { postalcode } = doc.data();
-            setPostalCodes((postalCodes) => [...postalCodes, postalcode])
+            // console.log(doc.id, " => ", doc.data());
+            const { lat, lng, age, symptomps } = doc.data();
+            setPostalCodes((coordsList) => [...coordsList, { age, symptomps, lat, lng, id: doc.id }])
         });
     })
     .catch(function(error) {
@@ -57,13 +52,22 @@ export const MapContainer: React.FC = () => {
     });
   }, [])
   useEffect(() => {
-    if(postalCodes.length > 0 && maps) {
-      postalCodes.forEach(code => {
+    if(postalCodes.length > 0 && map && maps) {
+      postalCodes.forEach(({ lat, lng, age, symptomps }) => {
+        var infowindow = new google.maps.InfoWindow({
+            content: `
+            <p>Age: ${age}</p>
+            <p>Symptomps: ${symptomps}</p>
+            `
+          });
         let marker = new maps.Marker({
-          position: { lat: 63.750, lng: 26.0 },
+          position: { lat, lng },
           map,
           title: 'Hello World!'
         });
+        marker.addListener('click', function() {
+            infowindow.open(map, marker);
+          });
       })
     }
   }, [postalCodes]);
@@ -75,26 +79,16 @@ export const MapContainer: React.FC = () => {
             bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_API_KEY ? process.env.REACT_APP_GOOGLE_API_KEY : '' }}
             defaultCenter={{ lat: 63.750, lng: 26.0 }}
             defaultZoom={5}
+            options={{
+                scrollwheel: false,
+                maxZoom: 5,
+                minZoom: 5,
+                zoomControl: false,
+                fullscreenControl: false,
+                draggable: false,
+            }}
             onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
           >
-            {/* {
-            postalCodes
-            .filter((item, pos) => postalCodes.indexOf(item) == pos)
-            .map(code => (
-              <div style={{
-                
-                  backgroundImage: 'radial-gradient(circle, red, red 66%, transparent 33%)',
-                  height: '2vh',
-                  width: '2vh'
-                
-              }}>
-              <AnyReactComponent
-              lat={63.750}
-              lng={26.0}
-              text="My Marker"/>
-              </div>
-            ))
-        } */}
               
       
                   
@@ -104,33 +98,6 @@ export const MapContainer: React.FC = () => {
   </div>
       );
     }
- 
-      // <Map onReady={autoCenterMap} google={google} zoom={5} initialCenter={{ lat: 63.750, lng: 26.0 }} styles={styles}>
-          
-        //   { 
-        //     postalCodes.forEach(code => {
-        //       return (
-        //       <Marker 
-        //           onClick={() => onMarkerClick(code)}
-        //           name={'Current location'}  
-        //           />
-        //           );
-        //     })
-        //   }
-          
-        //   <InfoWindow onClose={() => {}}>
-        //       <div>
-        //         <h1></h1>
-        //       </div>
-        //   </InfoWindow>
-        // </Map>
-        // );
-// const LoadingContainer = () => (
-//     <div>Fancy loading container!</div>
-// )
-// export default GoogleApiWrapper({
-//   LoadingContainer: LoadingContainer,
-// })(MapContainer)
 
 const styles: google.maps.MapTypeStyle[] = [
   {

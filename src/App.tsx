@@ -14,7 +14,7 @@ import GoogleMapReact from 'google-map-react';
 
 require('dotenv').config()
 
-export const AnyReactComponent: React.FC<{text: string, lat: number, lng: number}> = ({ text, lat, lng }) => <div>{text}</div>;
+export const AnyReactComponent: React.FC<{ text: string, lat: number, lng: number}> = ({ text, lat, lng }) => <div>{text}</div>;
 
 
 export const App = () => {
