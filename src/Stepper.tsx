@@ -33,18 +33,18 @@ export const VerticalLinearStepper: React.FC = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = ['Oirearvio', 'Anna sijainti', 'Lähetä'];
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
-  const [postalCode, setPostalCode] = useState("");
+  // const [postalCode, setPostalCode] = useState("");
   const [age, SetAge] = useState(18);
   const [symptomps, setSymptoms] = useState<boolean|undefined>();
 
 
-  useEffect(() => {
-    if(location && !postalCode) {
-      fetch(`https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAK_klzIah3ua0DLlOx9MKpYwXSzP__d_w&latlng=${location?.lat},${location?.lng}&sensor=true`)
-      .then(response => response.json())
-      .then(({ results }) => results.map((result: any) => console.log(result)))
-    }
-  }, [location])
+  // useEffect(() => {
+  //   if(location && !postalCode) {
+  //     fetch(`https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAK_klzIah3ua0DLlOx9MKpYwXSzP__d_w&latlng=${location?.lat},${location?.lng}&sensor=true`)
+  //     .then(response => response.json())
+  //     .then(({ results }) => results.map((result: any) => console.log(result)))
+  //   }
+  // }, [location])
 
   const getStepContent = (step: number) => {
     switch (step) {
