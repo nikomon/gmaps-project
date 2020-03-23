@@ -74,7 +74,7 @@ export const MapContainer: React.FC = () => {
   
   
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
+    <div style={{ height: '90vh', width: '100%' }}>
   <GoogleMapReact
             bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_API_KEY ? process.env.REACT_APP_GOOGLE_API_KEY : '' }}
             defaultCenter={{ lat: 63.750, lng: 26.0 }}
