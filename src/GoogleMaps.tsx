@@ -72,7 +72,7 @@ export const MapContainer: React.FC = () => {
   return (
     <div style={{ height: '100vh', width: '100%' }}>
   <GoogleMapReact
-            bootstrapURLKeys={{ key: 'AIzaSyAuc82WLUAkTjsCJTGchRWTv1O8FUyvjS8' }}
+            bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_API_KEY ? process.env.REACT_APP_GOOGLE_API_KEY : '' }}
             defaultCenter={{ lat: 63.750, lng: 26.0 }}
             defaultZoom={5}
             onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
@@ -129,7 +129,6 @@ export const MapContainer: React.FC = () => {
 //     <div>Fancy loading container!</div>
 // )
 // export default GoogleApiWrapper({
-//   apiKey: ('AIzaSyAuc82WLUAkTjsCJTGchRWTv1O8FUyvjS8'),
 //   LoadingContainer: LoadingContainer,
 // })(MapContainer)
 
